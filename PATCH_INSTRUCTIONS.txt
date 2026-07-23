@@ -1,0 +1,14 @@
+Your server is now live with old MVP. To add growable modules WITHOUT breaking DB:
+
+1. Extract this tar: tar -xzf quick-cm-growable-v4-old-db.tar.gz -C ~/projects/quick-cm
+
+2. Edit server.js (your old MVP file) and add at bottom BEFORE 404 handler:
+   const growableRoutes = require('./routes/growable');
+   growableRoutes(app);
+
+3. Restart: pm2 restart quick-cm && curl -s http://localhost:3000/api/v2/health
+   Should return { status: ok, version: v4-old-db }
+
+4. Then test:
+   curl -s http://localhost:3000/api/v2/merchants
+   curl -X POST http://localhost:3000/api/v2/merchants -H "Content-Type: application/json" -d '{"name":"Test Shop","quartier":"Akwa","phone":"699000000"}'

@@ -1,0 +1,68 @@
+const express = require('express');
+const cors = require('cors');
+const { sequelize } = require('./config/database');
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static('public'));
+
+// Import routes
+const apiRoutes = require('./routes/api');
+const webhookRoutes = require('./routes/webhook');
+const invoiceRoutes = require('./routes/invoice');
+const botRoutes = require('./routes/bot');
+const productRoutes = require('./routes/product');
+const merchantRoutes = require('./routes/merchant');
+const paymentRoutes = require('./routes/payment');
+const referralRoutes = require('./routes/referral');
+const agentRoutes = require('./routes/agent');
+const crmRoutes = require('./routes/crm');
+
+// Register routes
+apiRoutes(app);
+webhookRoutes(app);
+invoiceRoutes(app);
+botRoutes(app);
+productRoutes(app);
+merchantRoutes(app);
+paymentRoutes(app);
+referralRoutes(app);
+agentRoutes(app);
+crmRoutes(app);
+
+// 404 handler
+app.use((req, res) => {
+    res.status(404).json({ success: false, error: 'Route not found', path: req.path });
+});
+
+// Error handler
+app.use((err, req, res, next) => {
+    console.error('❌ Error:', err.message);
+    res.status(500).json({ success: false, error: 'Internal server error', message: err.message });
+});
+
+// Start server
+async function startServer() {
+    try {
+        await sequelize.authenticate();
+        console.log('✅ PostgreSQL connected');
+        await sequelize.sync({ alter: true });
+        console.log('✅ Database synchronized');
+        app.listen(PORT, '0.0.0.0', () => {
+            console.log(`🚀 Quick.cm Server running on http://localhost:${PORT}`);
+            console.log(`📊 Health: http://localhost:${PORT}/api/health`);
+            console.log(`🌐 Frontend: http://localhost:${PORT}/`);
+        });
+    } catch (error) {
+        console.error('❌ Error:', error.message);
+        process.exit(1);
+    }
+}
+
+startServer();

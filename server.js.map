@@ -1,0 +1,20 @@
+{
+	"routes": [
+		{
+			"method": "POST",
+			"url": "/api/auth/register/"
+		},
+		{
+			"method": "POST",
+			"url": "/api/auth/login/"
+		},
+		{
+			"method": "POST",
+			"url": "/api/webhooks/momo/"
+		},
+		{
+			"method": "GET",
+			"url": "/api/health/"
+		}
+	]
+}

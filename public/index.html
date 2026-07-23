@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Quick.cm - Ops Dashboard v8</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>body{font-family:'Space Grotesk',sans-serif} .mono{font-family:'JetBrains Mono',monospace}</style>
+</head>
+<body class="bg-[#fafaf7] text-zinc-900">
+<div class="max-w-[1600px] mx-auto p-4 md:p-6">
+  <header class="flex flex-wrap justify-between items-center gap-4 mb-6">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 bg-zinc-900 text-white grid place-items-center rounded-xl font-bold text-xl">Q</div>
+      <div>
+        <h1 class="text-2xl font-bold leading-none">Quick.cm Ops</h1>
+        <p class="text-xs text-zinc-500 mono" id="health">v8-rider-dashboard • checking...</p>
+      </div>
+    </div>
+    <div class="flex gap-2">
+      <button onclick="loadAll()" class="px-4 py-2 bg-zinc-900 text-white rounded-xl text-sm font-semibold">↻ Refresh</button>
+      <a href="/api/v2/health" target="_blank" class="px-4 py-2 bg-white border rounded-xl text-sm">API Health</a>
+    </div>
+  </header>
+
+  <div id="stats" class="grid grid-cols-2 md:grid-cols-6 gap-3 mb-6"></div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-9">
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-4" id="kanban"></div>
+    </div>
+    <div class="lg:col-span-3 space-y-4">
+      <div class="bg-white rounded-2xl border p-4">
+        <h3 class="font-bold mb-3">🛵 Riders <span class="text-xs font-normal text-zinc-500" id="rider-count"></span></h3>
+        <div id="riders" class="space-y-2"></div>
+        <form id="rider-form" class="mt-4 flex gap-2">
+          <input id="r-name" placeholder="Name" class="flex-1 px-3 py-2 border rounded-xl text-sm" required>
+          <input id="r-phone" placeholder="Phone" class="w-28 px-3 py-2 border rounded-xl text-sm" required>
+          <input id="r-quartier" placeholder="Akwa" value="Akwa" class="w-20 px-3 py-2 border rounded-xl text-sm" required>
+          <button class="px-3 py-2 bg-zinc-900 text-white rounded-xl text-sm">+</button>
+        </form>
+      </div>
+      <div class="bg-white rounded-2xl border p-4">
+        <h3 class="font-bold mb-2">📦 Create Test Order</h3>
+        <form id="order-form" class="space-y-2">
+          <input id="o-name" placeholder="Client name" value="Test Client" class="w-full px-3 py-2 border rounded-xl text-sm" required>
+          <input id="o-phone" placeholder="677000000" value="677000111" class="w-full px-3 py-2 border rounded-xl text-sm" required>
+          <input id="o-quartier" placeholder="Quartier" value="Akwa" class="w-full px-3 py-2 border rounded-xl text-sm" required>
+          <input id="o-address" placeholder="Delivery address" value="Carrefour Arno" class="w-full px-3 py-2 border rounded-xl text-sm" required>
+          <button class="w-full py-2 bg-emerald-600 text-white rounded-xl text-sm font-semibold">Create Order (Riz 5kg)</button>
+        </form>
+      </div>
+      <div class="bg-zinc-900 text-zinc-100 rounded-2xl p-4">
+        <h3 class="font-bold mb-2 text-sm">WHATSAPP LOGS</h3>
+        <p class="text-xs text-zinc-400 mb-2">Check terminal: pm2 logs quick-cm --lines 30 | grep WHATSAPP</p>
+        <div id="logs" class="mono text-[11px] leading-4 max-h-40 overflow-auto whitespace-pre-wrap"></div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+const MERCHANT_ID = "35cc694a-94d0-4457-8956-1fdfec82d962";
+let PRODUCTS=[], RIDERS=[], ORDERS=[], STATS=null;
+const COLS = [
+  {id:'pending', label:'⏳ Pending', color:'bg-amber-100 border-amber-200'},
+  {id:'confirmed', label:'📦 Confirmed', color:'bg-blue-100 border-blue-200'},
+  {id:'delivering', label:'🛵 Delivering', color:'bg-purple-100 border-purple-200'},
+  {id:'delivered', label:'✅ Delivered', color:'bg-emerald-100 border-emerald-200'},
+];
+
+async function api(p, opts={}) {
+  const r = await fetch(p, {headers:{'Content-Type':'application/json'}, ...opts});
+  return r.json();
+}
+
+async function loadAll() {
+  const [health, stats, orders, riders, products] = await Promise.all([
+    api('/api/v2/health'),
+    api(`/api/v2/stats/overview?merchantId=${MERCHANT_ID}`),
+    api(`/api/v2/orders?merchantId=${MERCHANT_ID}&limit=50`),
+    api('/api/v2/riders'),
+    api(`/api/v2/products?merchantId=${MERCHANT_ID}`)
+  ]);
+  document.getElementById('health').textContent = `${health.version} • ${health.modules?.join(', ')}`;
+  STATS = stats.data; ORDERS = orders.data || []; RIDERS = riders.data || []; PRODUCTS = products.data || [];
+  renderStats(); renderKanban(); renderRiders();
+}
+
+function renderStats() {
+  const s = STATS;
+  const html = `
+    <div class="bg-white border rounded-2xl p-4"><div class="text-xs text-zinc-500">MERCHANTS</div><div class="text-2xl font-bold">${s.merchants}</div></div>
+    <div class="bg-white border rounded-2xl p-4"><div class="text-xs text-zinc-500">PRODUCTS</div><div class="text-2xl font-bold">${s.products}</div></div>
+    <div class="bg-white border rounded-2xl p-4"><div class="text-xs text-zinc-500">TOTAL ORDERS</div><div class="text-2xl font-bold">${s.orders.total}</div></div>
+    <div class="bg-amber-50 border border-amber-200 rounded-2xl p-4"><div class="text-xs text-amber-700">PENDING</div><div class="text-2xl font-bold">${s.orders.pending||0}</div></div>
+    <div class="bg-purple-50 border border-purple-200 rounded-2xl p-4"><div class="text-xs text-purple-700">DELIVERING</div><div class="text-2xl font-bold">${s.orders.delivering||0}</div></div>
+    <div class="bg-emerald-50 border border-emerald-200 rounded-2xl p-4"><div class="text-xs text-emerald-700">REVENUE</div><div class="text-2xl font-bold">${s.revenue} <span class="text-sm font-normal">FCFA</span></div></div>
+  `;
+  document.getElementById('stats').innerHTML = html;
+}
+
+function renderKanban() {
+  const container = document.getElementById('kanban');
+  container.innerHTML = COLS.map(col=>{
+    const colOrders = ORDERS.filter(o=>o.status===col.id);
+    const cards = colOrders.map(o=>orderCard(o)).join('');
+    return `<div class="bg-white rounded-2xl border p-3 min-h-[400px]"><div class="flex justify-between items-center mb-3"><h3 class="font-bold text-sm">${col.label}</h3><span class="text-xs bg-zinc-900 text-white px-2 py-0.5 rounded-full">${colOrders.length}</span></div><div class="space-y-3">${cards||'<div class="text-xs text-zinc-400 text-center py-8">No orders</div>'}</div></div>`;
+  }).join('');
+}
+
+function orderCard(o) {
+  const rider = RIDERS.find(r=>r.id===o.riderId);
+  return `<div class="border rounded-xl p-3 bg-[#fefefe] shadow-sm">
+    <div class="flex justify-between items-start mb-1"><span class="mono text-[10px] bg-zinc-900 text-white px-2 py-0.5 rounded-full">#${o.id.slice(0,8).toUpperCase()}</span><span class="text-[10px] text-zinc-500">${new Date(o.createdAt).toLocaleTimeString()}</span></div>
+    <div class="font-semibold text-sm">${o.client_name}</div>
+    <div class="text-xs text-zinc-500">${o.client_quartier} • ${o.client_phone}</div>
+    <div class="text-xs mt-1">${o.items?.map(i=>`${i.quantity}x ${i.name}`).join(', ')||''}</div>
+    <div class="flex justify-between mt-2 text-xs"><span>${o.delivery_address||''}</span><span class="font-bold">${o.total}F</span></div>
+    ${rider?`<div class="mt-2 text-[11px] bg-purple-50 border border-purple-200 rounded-lg px-2 py-1">🛵 ${rider.name} • ${rider.phone}</div>`:''}
+    <div class="flex flex-wrap gap-1 mt-2">
+      ${o.status==='pending'?`<button onclick="updateStatus('${o.id}','confirmed')" class="px-2 py-1 bg-blue-600 text-white rounded-lg text-[11px]">Confirm</button>`:''}
+      ${o.status!=='delivered'&&o.status!=='delivering'?`<button onclick="autoAssign('${o.id}')" class="px-2 py-1 bg-zinc-900 text-white rounded-lg text-[11px]">Assign Rider</button>`:''}
+      ${o.status==='confirmed'?`<button onclick="updateStatus('${o.id}','delivering')" class="px-2 py-1 bg-purple-600 text-white rounded-lg text-[11px]">Delivering</button>`:''}
+      ${o.status==='delivering'?`<button onclick="complete('${o.id}')" class="px-2 py-1 bg-emerald-600 text-white rounded-lg text-[11px]">Complete</button>`:''}
+    </div>
+  </div>`;
+}
+
+function renderRiders() {
+  document.getElementById('rider-count').textContent = `${RIDERS.length} • ${RIDERS.filter(r=>r.status==='available').length} available`;
+  document.getElementById('riders').innerHTML = RIDERS.map(r=>`
+    <div class="flex justify-between items-center border rounded-xl px-3 py-2 text-sm">
+      <div><div class="font-semibold">${r.name}</div><div class="text-[11px] text-zinc-500">${r.quartier} • ${r.phone} • ${r.total_deliveries} deliveries</div></div>
+      <span class="text-[10px] px-2 py-1 rounded-full ${r.status==='available'?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}">${r.status}</span>
+    </div>
+  `).join('');
+}
+
+async function updateStatus(id,status){
+  await api(`/api/v2/orders/${id}/status`,{method:'PATCH', body:JSON.stringify({status})});
+  loadAll();
+}
+async function autoAssign(orderId){
+  const order = ORDERS.find(o=>o.id===orderId);
+  if(!order) return alert('Order not found');
+  // pick available rider in same quartier, else any available
+  let candidates = RIDERS.filter(r=>r.status==='available' && r.quartier.toLowerCase()===order.client_quartier.toLowerCase());
+  if(candidates.length===0) candidates = RIDERS.filter(r=>r.status==='available');
+  if(candidates.length===0) return alert('No available rider in '+order.client_quartier);
+  const rider = candidates.sort((a,b)=>a.total_deliveries-b.total_deliveries)[0];
+  await api('/api/v2/riders/assign',{method:'POST', body:JSON.stringify({orderId, riderId:rider.id})});
+  loadAll();
+}
+async function complete(orderId){
+  await api('/api/v2/riders/complete',{method:'POST', body:JSON.stringify({orderId})});
+  loadAll();
+}
+
+document.getElementById('rider-form').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const name=document.getElementById('r-name').value;
+  const phone=document.getElementById('r-phone').value;
+  const quartier=document.getElementById('r-quartier').value;
+  await api('/api/v2/riders',{method:'POST', body:JSON.stringify({name,phone,quartier})});
+  e.target.reset(); document.getElementById('r-quartier').value='Akwa';
+  loadAll();
+});
+document.getElementById('order-form').addEventListener('submit', async e=>{
+  e.preventDefault();
+  const payload = {
+    merchantId: MERCHANT_ID,
+    client_name: document.getElementById('o-name').value,
+    client_phone: document.getElementById('o-phone').value,
+    client_quartier: document.getElementById('o-quartier').value,
+    delivery_address: document.getElementById('o-address').value,
+    items: [{ productId: PRODUCTS[0]?.id, quantity:1 }]
+  };
+  if(!payload.items[0].productId) return alert('No product found for merchant');
+  await api('/api/v2/orders',{method:'POST', body:JSON.stringify(payload)});
+  loadAll();
+});
+
+loadAll();
+setInterval(loadAll, 10000);
+</script>
+</body>
+</html>

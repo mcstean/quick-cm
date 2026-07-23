@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes" />
+    <title>Quick.cm – Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .touch-btn { min-height: 48px; min-width: 48px; }
+        .stat-card:active { transform: scale(0.97); transition: transform 0.2s; }
+    </style>
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <nav class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <img src="/assets/logo.png" alt="Quick.cm" class="h-8" />
+                <span class="text-primary font-bold text-lg">Quick.cm</span>
+            </div>
+            <button class="touch-btn p-2 rounded-full hover:bg-gray-100">
+                <svg class="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+            </button>
+        </div>
+    </nav>
+    <main class="max-w-7xl mx-auto px-4 py-6">
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Good morning, Merchant!</h1>
+            <p class="text-gray-500">Here's what's happening with your store.</p>
+        </div>
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div class="stat-card bg-white rounded-xl shadow p-4 text-center">
+                <div class="text-2xl font-bold text-primary">24</div>
+                <div class="text-sm text-gray-500">Orders</div>
+            </div>
+            <div class="stat-card bg-white rounded-xl shadow p-4 text-center">
+                <div class="text-2xl font-bold text-accent">₦1.2M</div>
+                <div class="text-sm text-gray-500">Revenue</div>
+            </div>
+            <div class="stat-card bg-white rounded-xl shadow p-4 text-center">
+                <div class="text-2xl font-bold text-yellow-600">12</div>
+                <div class="text-sm text-gray-500">Products</div>
+            </div>
+            <div class="stat-card bg-white rounded-xl shadow p-4 text-center">
+                <div class="text-2xl font-bold text-purple-600">8</div>
+                <div class="text-sm text-gray-500">Leads</div>
+            </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3 mb-6">
+            <button class="touch-btn bg-primary text-white rounded-xl py-4 font-semibold shadow-md">➕ New Product</button>
+            <button class="touch-btn bg-accent text-white rounded-xl py-4 font-semibold shadow-md">📄 New Invoice</button>
+        </div>
+        <div class="bg-white rounded-xl shadow p-4">
+            <h2 class="font-semibold text-gray-700 mb-3">Recent Activity</h2>
+            <ul class="divide-y divide-gray-100">
+                <li class="py-2 flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <span class="text-sm">Invoice #INV-2026-001 paid</span>
+                </li>
+                <li class="py-2 flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                    <span class="text-sm">New lead: John Doe</span>
+                </li>
+                <li class="py-2 flex items-center gap-3">
+                    <span class="w-2 h-2 rounded-full bg-orange-500"></span>
+                    <span class="text-sm">Product "Coffee" out of stock</span>
+                </li>
+            </ul>
+        </div>
+        <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 flex justify-around py-2">
+            <button class="flex flex-col items-center text-primary"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path d="M3 12l9-9 9 9v9a2 2 0 01-2 2h-4v-6h-6v6H5a2 2 0 01-2-2v-9z"/></svg><span class="text-xs">Home</span></button>
+            <button class="flex flex-col items-center text-gray-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 4v12l-4-2-4 2V4M6 20h12"/></svg><span class="text-xs">Invoices</span></button>
+            <button class="flex flex-col items-center text-gray-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg><span class="text-xs">Products</span></button>
+            <button class="flex flex-col items-center text-gray-400"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg><span class="text-xs">Settings</span></button>
+        </div>
+        <div class="h-20"></div>
+    </main>
+    <script>
+        document.querySelectorAll('.touch-btn').forEach(btn => {
+            btn.addEventListener('touchstart', () => btn.style.opacity = '0.7');
+            btn.addEventListener('touchend', () => btn.style.opacity = '1');
+        });
+    </script>
+</body>
+</html>

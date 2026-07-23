@@ -1,0 +1,16 @@
+const { Router } = require('express');
+const merchantRoutes = require('./merchants/merchant.routes');
+const productRoutes = require('./products/product.routes');
+const orderRoutes = require('./orders/order.routes');
+const statsRoutes = require('./stats/stats.routes');
+const riderRoutes = require('./riders/rider.routes');
+const dashboardRoutes = require('./dashboard/dashboard.routes');
+const router = Router();
+router.get('/health', (req,res)=> res.json({ status:'ok', version:'v8-dashboard', modules:['merchants','products','orders','stats','riders','notifications','dashboard'] }));
+router.use('/merchants', merchantRoutes);
+router.use('/products', productRoutes);
+router.use('/orders', orderRoutes);
+router.use('/stats', statsRoutes);
+router.use('/riders', riderRoutes);
+router.use('/dashboard', dashboardRoutes);
+module.exports = router;
