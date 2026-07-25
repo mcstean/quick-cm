@@ -7,6 +7,20 @@ compatibility_flags = ["nodejs_compat"]
 directory = ".svelte-kit/cloudflare"
 not_found_handling = "single-page-application"
 
+[[d1_databases]]
+binding = "DB"
+database_name = "quickcm-db"
+database_id = "35e5601a-3c72-4ea5-b058-d8859cebd4a1"
+
+[[kv_namespaces]]
+binding = "CACHE"
+id = "ccc2faafc57641dba1f184c29cb86137"
+preview_id = "ccc2faafc57641dba1f184c29cb86137"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "quickcm-images"
+
 [env.production]
 name = "quick-cm-prod"
 routes = [
@@ -19,14 +33,14 @@ PUBLIC_APP_URL = "https://quick.cm"
 
 [[env.production.kv_namespaces]]
 binding = "CACHE"
-id = "your-kv-id"
-preview_id = "your-kv-preview-id"
+id = "ccc2faafc57641dba1f184c29cb86137"
+preview_id = "ccc2faafc57641dba1f184c29cb86137"
 
-[[d1_databases]]
+[[env.production.d1_databases]]
 binding = "DB"
 database_name = "quickcm-db"
-database_id = "PASTE_D1_ID_HERE"
+database_id = "35e5601a-3c72-4ea5-b058-d8859cebd4a1"
 
-[[r2_buckets]]
+[[env.production.r2_buckets]]
 binding = "R2"
 bucket_name = "quickcm-images"
