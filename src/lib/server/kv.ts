@@ -1,2 +1,12 @@
-export const getCache = async (platform: any, key: string) => platform?.env?.CACHE?.get(key)
-export const setCache = async (platform: any, key: string, val: string, ttl=3600) => platform?.env?.CACHE?.put(key, val, {expirationTtl: ttl})
+// Proper KV wrapper for Cloudflare-only MVP
+// Binding: CACHE id ccc2faafc57641dba1f184c29cb86137
+export async function getCache(platform: any, key: string) {
+  const cache = platform?.env?.CACHE
+  if (!cache) return null
+  return await cache.get(key)
+}
+export async function setCache(platform: any, key: string, value: string, ttl = 300) {
+  const cache = platform?.env?.CACHE
+  if (!cache) return
+  await cache.put(key, value, { expirationTtl: ttl })
+}
