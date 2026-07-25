@@ -4,6 +4,7 @@ compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
 [assets]
+binding = "ASSETS"
 directory = ".svelte-kit/cloudflare"
 not_found_handling = "single-page-application"
 
@@ -44,4 +45,3 @@ database_id = "35e5601a-3c72-4ea5-b058-d8859cebd4a1"
 [[env.production.r2_buckets]]
 binding = "R2"
 bucket_name = "quickcm-images"
-
