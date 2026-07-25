@@ -1,20 +1,32 @@
 name = "quick-cm"
 main = ".svelte-kit/cloudflare/_worker.js"
-compatibility_date = "2024-07-23"
+compatibility_date = "2024-09-23"
 compatibility_flags = ["nodejs_compat"]
 
 [assets]
 directory = ".svelte-kit/cloudflare"
-binding = "ASSETS"
 not_found_handling = "single-page-application"
 
-[vars]
-VITE_GTM_ID = "GTM-HLVYNHFSKG"
-VITE_META_1708048603852413 = "1708048603852413"
-VITE_GA4_ID = "G-HLVYNHFSKG"
-VITE_WHATSAPP_NUMBER = "237677957755"
-VITE_API_URL = "https://api.quick.cm"
-VITE_APP_URL = "https://quick.cm"
-ENV = "production"
-# Second Google Tag
-VITE_GT_TAG = "GT-W6JZCFFR"
+[env.production]
+name = "quick-cm-prod"
+routes = [
+  { pattern = "quick.cm/*", zone_name = "quick.cm" },
+  { pattern = "*.quick.cm/*", zone_name = "quick.cm" }
+]
+
+[env.production.vars]
+PUBLIC_APP_URL = "https://quick.cm"
+
+[[env.production.kv_namespaces]]
+binding = "CACHE"
+id = "your-kv-id"
+preview_id = "your-kv-preview-id"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "quickcm-db"
+database_id = "PASTE_D1_ID_HERE"
+
+[[r2_buckets]]
+binding = "R2"
+bucket_name = "quickcm-images"
